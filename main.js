@@ -83,9 +83,10 @@ class RandomPeas {
   drawPeas(peaStepSeq) {
     const circles = this.peaGroup
                         .selectAll('circle')
-                        .data(peaStepSeq); //d => d.totalInd)
+                        .data(peaStepSeq, d => d.id);
     circles.enter().append('circle')
            .merge(circles)
+           .attr('id', d => d.id)
            .attr('fill', d => d.color)
            .attr('r', d => this.svgHeight / d.step / 2)
            .attr('cx', d => d.xCoef * this.svgHeight)
@@ -108,10 +109,11 @@ class RandomPeas {
     const shiftedCurrStep = currStep
     .filter(d => !d.isNew)
     .map(d => ({
-      ind: d.ind,
+      ind: d.color == '#FFCC2A'? d.ind -1 : d.ind,
       color: d.color,
       step: d.step - 1,
       isNew: d.isNew,
+      id: d.id,
       // todo make a function for this shit beacause i don't understand it
       xCoef: d.xCoef - 1 / ((stepNum - 1) * 2) - 1 / (stepNum * 2)
     }));
@@ -120,27 +122,30 @@ class RandomPeas {
     //console.log(shiftedCurrStep);
     this.drawPeas(toDraw);
     let updateGroup = this.peaGroup.selectAll('circle')
-                          .data(peaStepSeq.slice(0, stepBounds.end)); //d => d.totalInd)
+                          .data(peaStepSeq.slice(0, stepBounds.end), d => d.id)
     // console.log(updateGroup);
-    updateGroup.classed('new', d => d.isNew)
-               .transition().duration(2000)
-               .attr('fill', d => d.color)
+    const tr = updateGroup.classed('new', d => d.isNew)
+               .attr('id', d => d.id)
+               .transition().duration(1000)
+               //.attr('fill', d => d.color)
                .attr('cx', d => d.xCoef * this.svgHeight)
+               .transition().duration(1000)
                .attr('r', d => this.svgHeight / d.step / 2)
                .attr('cy', d => (this.svgHeight / d.step / 2)  * 2 * (d.ind + .5));
+    console.log(tr);
     // todo chain transitions
-    updateGroup.enter().append('circle')
-          .attr('id', d => d.totalInd)
-          .attr('fill', d => d.color)
-          .classed('new', d => d.isNew)
-          .attr('r', 0)
-          .attr('cx', d => d.xCoef * this.svgHeight)
-          .attr('cy', d => (this.svgHeight / d.step / 2)  * 2 * (d.ind + .5))
-          .transition().duration(2000).delay(2000)
-          .each(function() {
-            console.log(d3.select(this));
-            d3.select(this).attr('r', d => self.svgHeight / d.step / 2)
-          });
+    setTimeout(function() {
+      updateGroup.enter().append('circle')
+            .attr('id', d => d.totalInd)
+            .attr('fill', d => d.color)
+            .classed('new', d => d.isNew)
+            .attr('r', 0)
+            .attr('id', d => d.id)
+            .attr('cx', d => d.xCoef * self.svgHeight)
+            .attr('cy', d => (self.svgHeight / d.step / 2)  * 2 * (d.ind + .5))
+            .transition().duration(1000)
+            .attr('r', d => self.svgHeight / d.step / 2);
+        }, 2000);
   }
 
   transitionStep() {
