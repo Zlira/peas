@@ -86,11 +86,12 @@ class RandomPeas {
                         .data(peaStepSeq, d => d.id);
     circles.enter().append('circle')
            .merge(circles)
+           .classed('new', d => d.isNew)
+           .transition('new-pea').duration(0)
            .attr('id', d => d.id)
            .attr('fill', d => d.color)
            .attr('r', d => this.svgHeight / d.step / 2)
            .attr('cx', d => d.xCoef * this.svgHeight)
-           .classed('new', d => d.isNew)
            .attr('cy', d => (this.svgHeight / d.step / 2)  * 2 * (d.ind + .5));
   }
 
@@ -121,31 +122,27 @@ class RandomPeas {
     //console.log(stepNum);
     //console.log(shiftedCurrStep);
     this.drawPeas(toDraw);
+    const newPeaTransition = this.peaGroup.transition('new-pea');
     let updateGroup = this.peaGroup.selectAll('circle')
                           .data(peaStepSeq.slice(0, stepBounds.end), d => d.id)
-    // console.log(updateGroup);
     const tr = updateGroup.classed('new', d => d.isNew)
-               .attr('id', d => d.id)
-               .transition().duration(1000)
-               //.attr('fill', d => d.color)
-               .attr('cx', d => d.xCoef * this.svgHeight)
-               .transition().duration(1000)
-               .attr('r', d => this.svgHeight / d.step / 2)
-               .attr('cy', d => (this.svgHeight / d.step / 2)  * 2 * (d.ind + .5));
-    console.log(tr);
+                 .attr('id', d => d.id)
+               .transition(newPeaTransition).duration(500)
+                 .attr('cx', d => d.xCoef * this.svgHeight)
+               .transition().duration(500)
+                 .attr('r', d => this.svgHeight / d.step / 2)
+                 .attr('cy', d => (this.svgHeight / d.step / 2)  * 2 * (d.ind + .5));
     // todo chain transitions
-    setTimeout(function() {
-      updateGroup.enter().append('circle')
-            .attr('id', d => d.totalInd)
-            .attr('fill', d => d.color)
-            .classed('new', d => d.isNew)
-            .attr('r', 0)
-            .attr('id', d => d.id)
-            .attr('cx', d => d.xCoef * self.svgHeight)
-            .attr('cy', d => (self.svgHeight / d.step / 2)  * 2 * (d.ind + .5))
-            .transition().duration(1000)
-            .attr('r', d => self.svgHeight / d.step / 2);
-        }, 2000);
+    updateGroup.enter().append('circle')
+          .attr('id', d => d.totalInd)
+          .attr('fill', d => d.color)
+          .classed('new', d => d.isNew)
+          .attr('r', 0)
+          .attr('id', d => d.id)
+          .attr('cx', d => d.xCoef * self.svgHeight)
+          .attr('cy', d => (self.svgHeight / d.step / 2)  * 2 * (d.ind + .5))
+          .transition(newPeaTransition).transition().duration(900)
+          .attr('r', d => self.svgHeight / d.step / 2);
   }
 
   transitionStep() {
@@ -157,7 +154,7 @@ class RandomPeas {
 
 
 let peaSeqSteps = expandPeaSeq(getRandomPeaSeq(145));
-let peasPic = new RandomPeas(1115, 200, 'white', '#017A57');
+let peasPic = new RandomPeas(1115, 200, '#017A57', 'white');
 let steps = 0;
 d3.select('#add-a-pea')
   .on('click', function() {
