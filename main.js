@@ -30,6 +30,20 @@ function stepSlice(stepNum) {
 }
 
 /**
+ * x positions of the circles follow something like the harmonic numbers pattern
+ * this function allows to compute the next or the previous value given
+ * the current value and the step index.
+ */
+function getXCoeficient(stepInd, currVal, stepOffset=1) {
+  if (Math.abs(stepOffset) != 1) {
+    throw "At this time function only supports 1 or -1 as stepOffset value";
+  }
+  return currVal + 1 / (stepInd * 2) * stepOffset
+                 + 1 / ((stepInd + 1) * 2) * stepOffset;
+}
+
+
+/**
  * from sequence of peas to expanded list with state of
  * peaSeq at each step
  */
@@ -48,12 +62,15 @@ function expandPeaSeq(peaSeq) {
         }
     };
     stepState = sortedStepState.map((p, j) => ({
-      ind: j, peaType: p.peaType, step: step,
-      xCoef: xCoef, isNew: p.ind === step - 1,
+      ind: j,
+      peaType: p.peaType,
+      step: step,
+      xCoef: xCoef,
+      isNew: p.ind === step - 1,
       id: step + '.' + p.ind,
     }));
     expandedSeq = expandedSeq.concat(stepState);
-    xCoef += 1 / (step * 2) + 1 / ((step + 1) * 2);
+    xCoef = getXCoeficient(step, xCoef);
   };
   return expandedSeq;
 }
@@ -124,8 +141,7 @@ class RandomPeas {
       step: d.step - 1,
       isNew: d.isNew,
       id: d.id,
-      // todo make a function for this shit beacause i don't understand it
-      xCoef: d.xCoef - 1 / ((stepNum - 1) * 2) - 1 / (stepNum * 2)
+      xCoef: getXCoeficient(stepNum - 1, d.xCoef, -1),
     }));
     const toDraw = peaStepSeq.slice(0, stepBounds.start).concat(shiftedCurrStep);
     //console.log(stepNum);
