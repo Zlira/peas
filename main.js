@@ -1,8 +1,9 @@
 'use strict';
 
 function getRandomPea() {
-  const options = ['#A9CF46', '#FFCC2A'];
-  return Math.random() >= .5? options[0] : options[1];
+  // todo make this work for any number of types
+  const types = ['green', 'yellow'];
+  return Math.random() >= .5? types[0] : types[1];
 }
 
 function getRandomPeaSeq(count) {
@@ -10,7 +11,7 @@ function getRandomPeaSeq(count) {
   for (let i = 0; i < count; i++) {
     peaSeq.push({
       'ind': i,
-      'color': getRandomPea(),
+      'peaType': getRandomPea(),
     });
   };
   return peaSeq;
@@ -39,15 +40,15 @@ function expandPeaSeq(peaSeq) {
     sortedStepState = [];
     stepState = peaSeq.slice(0, step).reverse();
     for (let pea of stepState) {
-        // todo this hardcoded color is no good
-        if (pea.color !== '#A9CF46') {
+        // todo this hardcoded peaType is no good
+        if (pea.peaType !== 'green') {
           sortedStepState.push(pea);
         } else {
           sortedStepState.unshift(pea);
         }
     };
     stepState = sortedStepState.map((p, j) => ({
-      ind: j, color: p.color, step: step,
+      ind: j, peaType: p.peaType, step: step,
       xCoef: xCoef, isNew: p.ind === step - 1,
       id: step + '.' + p.ind,
     }));
@@ -93,9 +94,10 @@ class RandomPeas {
     circles.enter().append('circle')
            .merge(circles)
            .classed('new', d => d.isNew)
+           .classed('green-pea', d => d.peaType === 'green')
+           .classed('yellow-pea', d => d.peaType === 'yellow')
            .transition('new-pea').duration(0)
            .attr('id', d => d.id)
-           .attr('fill', d => d.color)
            .attr('r', d => this.height / d.step / 2 - 1)
            .attr('cx', d => d.xCoef * this.height)
            .attr('cy', d => (this.height / d.step / 2)  * 2 * (d.ind + .5));
@@ -117,8 +119,8 @@ class RandomPeas {
     const shiftedCurrStep = currStep
     .filter(d => !d.isNew)
     .map(d => ({
-      ind: d.color == '#FFCC2A'? d.ind -1 : d.ind,
-      color: d.color,
+      ind: d.peaType === 'yellow'? d.ind -1 : d.ind,
+      peaType: d.peaType,
       step: d.step - 1,
       isNew: d.isNew,
       id: d.id,
@@ -141,8 +143,9 @@ class RandomPeas {
                  .attr('cy', d => (this.height / d.step / 2)  * 2 * (d.ind + .5));
     // todo chain transitions
     updateGroup.enter().append('circle')
+          .classed('green-pea', d => d.peaType === 'green')
+          .classed('yellow-pea', d => d.peaType === 'yellow')
           .attr('id', d => d.totalInd)
-          .attr('fill', d => d.color)
           .classed('new', d => d.isNew)
           .attr('r', 0)
           .attr('id', d => d.id)

@@ -6,3 +6,11 @@ svg .new {
 svg {
   outline: 1px solid #017A57;
 }
+
+svg .yellow-pea {
+  fill: #FFCC2A;
+}
+
+svg .green-pea {
+  fill: #A9CF46;
+}
