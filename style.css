@@ -1,4 +1,8 @@
-.new {
+svg .new {
   stroke: #017A57;
   stroke-width: 2;
+}
+
+svg {
+  outline: 1px solid #017A57;
 }

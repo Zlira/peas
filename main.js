@@ -61,6 +61,9 @@ class RandomPeas {
   constructor (svgWidth, svgHeight, middleLineColor, backgroundColor,) {
     this.svgWidth = svgWidth;
     this.svgHeight = svgHeight;
+    this.padding = {'top': 10, 'right': 0, 'bottom': 10, 'left': 10};
+    this.width = this.svgWidth - this.padding.right - this.padding.left;
+    this.height = this.svgHeight - this.padding.top - this.padding.bottom;
     this.backgroundColor = backgroundColor;
     this.middleLineColor = middleLineColor;
     this.svg = d3.select('#pea-probability')
@@ -68,7 +71,10 @@ class RandomPeas {
                    .attr('height', this.svgHeight)
                    .attr('width', this.svgWidth);
     this.addBackground();
-    this.peaGroup = this.svg.append('g').attr('id', 'pea-group');
+    this.container = this.svg.append('g')
+                             .attr('id', 'pea-group')
+                             .attr('transform', 'translate('+ this.padding.left + ',' + this.padding.top + ')');
+    this.peaGroup = this.container.append('g').attr('id', 'pea-group');
   }
 
   addBackground() {
@@ -90,16 +96,17 @@ class RandomPeas {
            .transition('new-pea').duration(0)
            .attr('id', d => d.id)
            .attr('fill', d => d.color)
-           .attr('r', d => this.svgHeight / d.step / 2)
-           .attr('cx', d => d.xCoef * this.svgHeight)
-           .attr('cy', d => (this.svgHeight / d.step / 2)  * 2 * (d.ind + .5));
+           .attr('r', d => this.height / d.step / 2 - 1)
+           .attr('cx', d => d.xCoef * this.height)
+           .attr('cy', d => (this.height / d.step / 2)  * 2 * (d.ind + .5));
   }
 
   drawMiddleLine() {
-    this.svg.append('line')
-            .attr('x1', 0).attr('y1', this.svgHeight / 2)
-            .attr('x2', this.svgWidth).attr('y2', this.svgHeight / 2)
-            .attr('stroke', this.middleLineColor).attr('stroke-width', '1px');
+    this.container
+            .append('line')
+              .attr('x1', 0).attr('y1', this.height / 2)
+              .attr('x2', this.width).attr('y2', this.height / 2)
+              .attr('stroke', this.middleLineColor).attr('stroke-width', '1px');
   }
 
   drawStepsTill(peaStepSeq, stepNum) {
@@ -128,10 +135,10 @@ class RandomPeas {
     const tr = updateGroup.classed('new', d => d.isNew)
                  .attr('id', d => d.id)
                .transition(newPeaTransition).duration(500)
-                 .attr('cx', d => d.xCoef * this.svgHeight)
+                 .attr('cx', d => d.xCoef * this.height)
                .transition().duration(500)
-                 .attr('r', d => this.svgHeight / d.step / 2)
-                 .attr('cy', d => (this.svgHeight / d.step / 2)  * 2 * (d.ind + .5));
+                 .attr('r', d => this.height / d.step / 2 - 1)
+                 .attr('cy', d => (this.height / d.step / 2)  * 2 * (d.ind + .5));
     // todo chain transitions
     updateGroup.enter().append('circle')
           .attr('id', d => d.totalInd)
@@ -139,22 +146,16 @@ class RandomPeas {
           .classed('new', d => d.isNew)
           .attr('r', 0)
           .attr('id', d => d.id)
-          .attr('cx', d => d.xCoef * self.svgHeight)
-          .attr('cy', d => (self.svgHeight / d.step / 2)  * 2 * (d.ind + .5))
+          .attr('cx', d => d.xCoef * self.height)
+          .attr('cy', d => (self.height / d.step / 2)  * 2 * (d.ind + .5))
           .transition(newPeaTransition).transition().duration(900)
-          .attr('r', d => self.svgHeight / d.step / 2);
-  }
-
-  transitionStep() {
-    // move from prev step to the next with same peas
-    // clear a space for a new pea
-    // add a new pea
+          .attr('r', d => self.height / d.step / 2 - 1);
   }
 }
 
 
 let peaSeqSteps = expandPeaSeq(getRandomPeaSeq(145));
-let peasPic = new RandomPeas(1115, 200, '#017A57', 'white');
+let peasPic = new RandomPeas(1125, 220, '#017A57', 'white');
 let steps = 0;
 d3.select('#add-a-pea')
   .on('click', function() {
