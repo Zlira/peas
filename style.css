@@ -6,6 +6,10 @@ svg {
   outline: 1px solid #017A57;
 }
 
+.svg-container {
+  display: inline-block;
+}
+
 svg .yellow-pea {
   fill: #FFCC2A;
 }
@@ -14,12 +18,22 @@ svg .green-pea {
   fill: #A9CF46;
 }
 
-svg .green-pea, svg .yellow-pea {
-  fill-opacity: .8;
-}
-
 svg .new.green-pea, svg .new.yellow-pea {
   stroke: #017A57;
   stroke-width: 2;
-  fill-opacity: 1;
+}
+
+svg .new.green-pea {
+  fill: #71AB2E;
+}
+
+svg .new.yellow-pea {
+  fill: #FFB100
+}
+
+svg .counter-text {
+  text-anchor: middle;
+  dominant-baseline: middle;
+  font-size: 36px;
+  fill: #017A57;
 }

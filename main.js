@@ -91,7 +91,9 @@ class RandomPeas {
     this.addBackground();
     this.container = this.svg.append('g')
                              .attr('id', 'pea-group')
-                             .attr('transform', 'translate('+ this.padding.left + ',' + this.padding.top + ')');
+                             .attr('transform',
+                                   'translate('+ this.padding.left + ','
+                                   + this.padding.top + ')');
     this.peaGroup = this.container.append('g').attr('id', 'pea-group');
   }
 
@@ -176,10 +178,13 @@ class RandomPeas {
     newPeas = this.setPeaAttrs(newPeas, {r: (d => 0)});
     newPeas.transition(newPeaTransition).transition().duration(300)
            .transition().duration(300)
-           .attr('r', d => self.height / d.step / 2 - 1);
+           .attr('r', d => self.height / d.step / 2 - 1)
+           .on('end', el => dispatcher.call('new-pea', undefined, stepNum));
+    ;
   }
 
   drawRemainingSteps(peaStepSeq) {
+    // todo use call method to chain calls
     let peaCircles = this.peaGroup.selectAll('circle');
     peaCircles = this.bindPeaData(peaStepSeq, peaCircles);
     peaCircles = peaCircles.enter().append('circle');
@@ -187,12 +192,54 @@ class RandomPeas {
     peaCircles = this.setPeaAttrs(
       peaCircles.transition('new-pea').duration(0).delay(d => d.step * 40)
     );
+    peaCircles.on('end', el => {
+      if (el.ind === 0) {dispatcher.call('new-pea', el, el.step)}
+    });
   }
 }
 
+class PeasCounter {
+  constructor(svgWidth, svgHeight) {
+    this.svgWidth = svgWidth;
+    this.svgHeight = svgHeight;
+    this.svg = d3.select('#pea-prob-counters')
+                 .append('svg')
+                   .attr('width', svgWidth)
+                   .attr('height', svgHeight);
+    this.addCounters();
+  }
 
-let peaSeqSteps = expandPeaSeq(getRandomPeaSeq(60));
-let peasPic = new RandomPeas(1125, 220, '#017A57', 'white');
+  addCounters() {
+    this.counterData = [
+      {'peaType': 'yellow', 'text': 0, 'yCoef': 3/4},
+      {'peaType': 'green', 'text': 0, 'yCoef': 1/4},
+    ]
+    this.svg.selectAll('text.counter-text')
+            .data(this.counterData)
+            .enter().append('text')
+            .attr('class', d => 'counter-text-' + d.peaType)
+            .classed('counter-text', true)
+            .attr('x', this.svgWidth / 2)
+            .attr('y', d => this.svgHeight * d.yCoef)
+            .text(d => d.text);
+  }
+
+  updateCounters(pea) {
+    if (!pea) {return};
+    for (let c of this.counterData) {
+      if (c.peaType === pea.peaType) {c['text'] += 1;}
+    };
+    this.svg.selectAll('text.counter-text')
+            .data(this.counterData)
+            .transition().text(d => d.text);
+  }
+}
+
+const peas = getRandomPeaSeq(60);
+const peaSeqSteps = expandPeaSeq(peas);
+const peasPic = new RandomPeas(955, 220, '#017A57', 'white');
+const countersPic = new PeasCounter(110, 220);
+const dispatcher = d3.dispatch('new-pea')
 // global steps not good
 let steps = 0;
 d3.select('#add-a-pea').on('click', function() {
@@ -202,5 +249,8 @@ d3.select('#add-a-pea').on('click', function() {
 d3.select('#add-all-peas').on('click', function () {
   steps = peaSeqSteps.length;
   peasPic.drawRemainingSteps(peaSeqSteps);
-})
-peasPic.drawMiddleLine();
+});
+dispatcher.on('new-pea', function (step) {
+  countersPic.updateCounters(peas[step - 1]);
+});
+// peasPic.drawMiddleLine();
