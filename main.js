@@ -178,15 +178,29 @@ class RandomPeas {
            .transition().duration(300)
            .attr('r', d => self.height / d.step / 2 - 1);
   }
+
+  drawRemainingSteps(peaStepSeq) {
+    let peaCircles = this.peaGroup.selectAll('circle');
+    peaCircles = this.bindPeaData(peaStepSeq, peaCircles);
+    peaCircles = peaCircles.enter().append('circle');
+    peaCircles = this.setPeaClassesAndId(peaCircles);
+    peaCircles = this.setPeaAttrs(
+      peaCircles.transition('new-pea').duration(0).delay(d => d.step * 40)
+    );
+  }
 }
 
 
-let peaSeqSteps = expandPeaSeq(getRandomPeaSeq(145));
+let peaSeqSteps = expandPeaSeq(getRandomPeaSeq(60));
 let peasPic = new RandomPeas(1125, 220, '#017A57', 'white');
+// global steps not good
 let steps = 0;
-d3.select('#add-a-pea')
-  .on('click', function() {
-    steps += 1;
-    peasPic.drawStepsTill(peaSeqSteps, steps);
-  });
+d3.select('#add-a-pea').on('click', function() {
+  steps += 1;
+  peasPic.drawStepsTill(peaSeqSteps, steps);
+});
+d3.select('#add-all-peas').on('click', function () {
+  steps = peaSeqSteps.length;
+  peasPic.drawRemainingSteps(peaSeqSteps);
+})
 peasPic.drawMiddleLine();
