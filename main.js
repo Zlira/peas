@@ -104,28 +104,44 @@ class RandomPeas {
     }
   }
 
-  drawPeas(peaStepSeq) {
-    const circles = this.peaGroup
-                        .selectAll('circle')
-                        .data(peaStepSeq, d => d.id);
-    circles.enter().append('circle')
-           .merge(circles)
-           .classed('new', d => d.isNew)
-           .classed('green-pea', d => d.peaType === 'green')
-           .classed('yellow-pea', d => d.peaType === 'yellow')
-           .transition('new-pea').duration(0)
-           .attr('id', d => d.id)
-           .attr('r', d => this.height / d.step / 2 - 1)
-           .attr('cx', d => d.xCoef * this.height)
-           .attr('cy', d => (this.height / d.step / 2)  * 2 * (d.ind + .5));
-  }
-
   drawMiddleLine() {
     this.container
             .append('line')
               .attr('x1', 0).attr('y1', this.height / 2)
               .attr('x2', this.width).attr('y2', this.height / 2)
               .attr('stroke', this.middleLineColor).attr('stroke-width', '1px');
+  }
+
+  bindPeaData(peaData, selection) {
+    return selection.data(peaData, d => d.id);
+  }
+
+  setPeaClassesAndId(peaSelection) {
+    return peaSelection.attr('id', d => d.id)
+                       .classed('new', d => d.isNew)
+                       // todo there's a shorter way to do this
+                       .classed('green-pea', d => d.peaType === 'green')
+                       .classed('yellow-pea', d => d.peaType === 'yellow');
+  }
+
+  setPeaAttrs(peaSelection, overrides={}) {
+    const self = this;
+    // todo cycle throught attrs didn't work for some reason
+    return peaSelection.attr('cx', overrides['cx'] ||
+                                   (d => d.xCoef * self.height))
+                       .attr('cy', overrides['cy'] ||
+                                   (d => self.height / d.step * (d.ind + .5)))
+                       .attr('r', overrides['r'] ||
+                                  (d => self.height / d.step / 2 - 1));
+  }
+
+  drawPeas(peaStepSeq) {
+    const circles = this.bindPeaData(
+      peaStepSeq, this.peaGroup.selectAll('circle')
+    );
+    let peaSelection = circles.enter().append('circle').merge(circles);
+    peaSelection = this.setPeaClassesAndId(peaSelection);
+    this.setPeaAttrs(peaSelection.transition('new-pea').duration(0));
   }
 
   drawStepsTill(peaStepSeq, stepNum) {
@@ -144,31 +160,23 @@ class RandomPeas {
       xCoef: getXCoeficient(stepNum - 1, d.xCoef, -1),
     }));
     const toDraw = peaStepSeq.slice(0, stepBounds.start).concat(shiftedCurrStep);
-    //console.log(stepNum);
-    //console.log(shiftedCurrStep);
     this.drawPeas(toDraw);
+
+    // transition existing peas from the previous step to the next
     const newPeaTransition = this.peaGroup.transition('new-pea');
-    let updateGroup = this.peaGroup.selectAll('circle')
-                          .data(peaStepSeq.slice(0, stepBounds.end), d => d.id)
-    const tr = updateGroup.classed('new', d => d.isNew)
-                 .attr('id', d => d.id)
-               .transition(newPeaTransition).duration(500)
-                 .attr('cx', d => d.xCoef * this.height)
-               .transition().duration(500)
-                 .attr('r', d => this.height / d.step / 2 - 1)
-                 .attr('cy', d => (this.height / d.step / 2)  * 2 * (d.ind + .5));
-    // todo chain transitions
-    updateGroup.enter().append('circle')
-          .classed('green-pea', d => d.peaType === 'green')
-          .classed('yellow-pea', d => d.peaType === 'yellow')
-          .attr('id', d => d.totalInd)
-          .classed('new', d => d.isNew)
-          .attr('r', 0)
-          .attr('id', d => d.id)
-          .attr('cx', d => d.xCoef * self.height)
-          .attr('cy', d => (self.height / d.step / 2)  * 2 * (d.ind + .5))
-          .transition(newPeaTransition).transition().duration(900)
-          .attr('r', d => self.height / d.step / 2 - 1);
+    let updateGroup = this.bindPeaData(
+      peaStepSeq.slice(0, stepBounds.end), this.peaGroup.selectAll('circle')
+    );
+    updateGroup = this.setPeaClassesAndId(updateGroup);
+    this.setPeaAttrs(updateGroup.transition(newPeaTransition).duration(700));
+
+    // add a new pea
+    let newPeas = updateGroup.enter().append('circle');
+    newPeas = this.setPeaClassesAndId(newPeas);
+    newPeas = this.setPeaAttrs(newPeas, {r: (d => 0)});
+    newPeas.transition(newPeaTransition).transition().duration(300)
+           .transition().duration(300)
+           .attr('r', d => self.height / d.step / 2 - 1);
   }
 }
 

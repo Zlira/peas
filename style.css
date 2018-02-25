@@ -1,8 +1,3 @@
-svg .new {
-  stroke: #017A57;
-  stroke-width: 2;
-}
-
 svg {
   outline: 1px solid #017A57;
 }
@@ -13,4 +8,14 @@ svg .yellow-pea {
 
 svg .green-pea {
   fill: #A9CF46;
+}
+
+svg .green-pea, svg .yellow-pea {
+  fill-opacity: .8;
+}
+
+svg .new.green-pea, svg .new.yellow-pea {
+  stroke: #017A57;
+  stroke-width: 2;
+  fill-opacity: 1;
 }
