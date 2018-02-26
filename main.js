@@ -179,7 +179,7 @@ class RandomPeas {
     newPeas.transition(newPeaTransition).transition().duration(300)
            .transition().duration(300)
            .attr('r', d => self.height / d.step / 2 - .5)
-           .on('end', el => dispatcher.call('new-pea', undefined, stepNum));
+           .on('end', d => dispatcher.call('new-pea', this, d));
     ;
   }
 
@@ -193,7 +193,9 @@ class RandomPeas {
       peaCircles.transition('new-pea').duration(0).delay(d => d.step * 40)
     );
     peaCircles.on('end', el => {
-      if (el.ind === 0) {dispatcher.call('new-pea', el, el.step)}
+      if (el.isNew) {
+        dispatcher.call('new-pea', this, el)
+      }
     });
   }
 }
@@ -257,7 +259,11 @@ d3.select('#add-all-peas').on('click', function () {
   steps = peaSeqSteps.length;
   peasPic.drawRemainingSteps(peaSeqSteps);
 });
-dispatcher.on('new-pea', function (step) {
-  countersPic.updateCounters(peas[step - 1]);
+dispatcher.on('new-pea', (pea) => {
+  if (pea) {
+    countersPic.updateCounters(pea);
+    d3.select("#pea-probability")
+      .node().scrollLeft = pea.xCoef * 220 - 600; // todo remove hardcode
+  }
 });
 // peasPic.drawMiddleLine();
