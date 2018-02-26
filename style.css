@@ -44,7 +44,6 @@ svg .new.yellow-pea {
 svg .counter-text {
   text-anchor: middle;
   dominant-baseline: middle;
-  font-size: 36px;
-  font-weight: bold;
+  font-size: 30px;
   fill: #017A57;
 }

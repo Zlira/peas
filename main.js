@@ -228,15 +228,15 @@ class PeasCounter {
    groups.append('circle')
          .attr('class', d => d.peaType + '-pea')
          .classed('counter-pea', true)
-         .attr('r', 40)
+         .attr('r', 50)
          .attr('cx', this.svgWidth / 2)
          .attr('cy', d => this.svgHeight * d.yCoef);
     groups.append('text')
           .attr('class', d => 'counter-text-' + d.peaType)
           .classed('counter-text', true)
           .attr('x', this.svgWidth / 2)
-          .attr('y', d => this.svgHeight * d.yCoef + 5)
-          .text(d => d.text);
+          .attr('y', d => this.svgHeight * d.yCoef + 3)
+          .text(d => d.text + '%');
   }
 
   updateCounters(pea) {
@@ -246,14 +246,14 @@ class PeasCounter {
     };
     this.svg.selectAll('text.counter-text')
             .data(this.counterData)
-            .transition().text(d => d.text);
+            .transition().text(d => Math.round(d.text / pea.step * 100) + '%');
   }
 }
 
 const peas = getRandomPeaSeq(60);
 const peaSeqSteps = expandPeaSeq(peas);
 const peasPic = new RandomPeas(955, 220, '#017A57', 'white');
-const countersPic = new PeasCounter(110, 220);
+const countersPic = new PeasCounter(130, 220);
 const dispatcher = d3.dispatch('new-pea')
 // global steps not good
 let steps = 0;
