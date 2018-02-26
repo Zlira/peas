@@ -151,6 +151,7 @@ class RandomPeas {
     const stepBounds = stepSlice(stepNum);
     const currStep = peaStepSeq.slice(stepBounds.start, stepBounds.end);
     // todo is this stupid? think about it
+    const newPea = currStep.filter(d => d.isNew)[0];
     const shiftedCurrStep = currStep
     .filter(d => !d.isNew)
     .map(d => ({
@@ -170,7 +171,12 @@ class RandomPeas {
       peaStepSeq.slice(0, stepBounds.end), this.peaGroup.selectAll('circle')
     );
     updateGroup = this.setPeaClassesAndId(updateGroup);
-    this.setPeaAttrs(updateGroup.transition(newPeaTransition).duration(700));
+    this.setPeaAttrs(updateGroup.transition(newPeaTransition).duration(700))
+        .on('interrupt', d=> {
+          if (d.step === stepNum && d.ind === 0) {
+            dispatcher.call('new-pea', this, newPea);
+          };
+        });
 
     // add a new pea
     let newPeas = updateGroup.enter().append('circle');
@@ -179,7 +185,7 @@ class RandomPeas {
     newPeas.transition(newPeaTransition).transition().duration(300)
            .transition().duration(300)
            .attr('r', d => self.height / d.step / 2 - .5)
-           .on('end', d => dispatcher.call('new-pea', this, d));
+           .on('end interrupt', d => dispatcher.call('new-pea', this, d));
     ;
   }
 
