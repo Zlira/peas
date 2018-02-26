@@ -2,12 +2,23 @@
   margin: 10px 0px;
 }
 
-svg {
-  outline: 1px solid #017A57;
+.pea-svg-container {
+  white-space:nowrap
 }
 
 .svg-container {
   display: inline-block;
+  white-space:normal;
+  outline: 1px solid #017A57;
+  height: 255px;
+}
+
+.pea-prob-plot {
+  width: 600px;
+  overflow-x: scroll;
+  overflow-y: visible;
+  float: left;
+  margin-right: 10px;
 }
 
 svg .yellow-pea {
@@ -19,16 +30,15 @@ svg .green-pea {
 }
 
 svg .new.green-pea, svg .new.yellow-pea {
-  stroke: #017A57;
   stroke-width: 2;
 }
 
 svg .new.green-pea {
-  fill: #71AB2E;
+  stroke: #71AB2E;
 }
 
 svg .new.yellow-pea {
-  fill: #FFB100
+  stroke: #FFB100
 }
 
 svg .counter-text {
