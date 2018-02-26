@@ -134,7 +134,7 @@ class RandomPeas {
                        .attr('cy', overrides['cy'] ||
                                    (d => self.height / d.step * (d.ind + .5)))
                        .attr('r', overrides['r'] ||
-                                  (d => self.height / d.step / 2 - 1));
+                                  (d => self.height / d.step / 2 - .5));
   }
 
   drawPeas(peaStepSeq) {
@@ -178,7 +178,7 @@ class RandomPeas {
     newPeas = this.setPeaAttrs(newPeas, {r: (d => 0)});
     newPeas.transition(newPeaTransition).transition().duration(300)
            .transition().duration(300)
-           .attr('r', d => self.height / d.step / 2 - 1)
+           .attr('r', d => self.height / d.step / 2 - .5)
            .on('end', el => dispatcher.call('new-pea', undefined, stepNum));
     ;
   }
@@ -214,14 +214,21 @@ class PeasCounter {
       {'peaType': 'yellow', 'text': 0, 'yCoef': 3/4},
       {'peaType': 'green', 'text': 0, 'yCoef': 1/4},
     ]
-    this.svg.selectAll('text.counter-text')
-            .data(this.counterData)
-            .enter().append('text')
-            .attr('class', d => 'counter-text-' + d.peaType)
-            .classed('counter-text', true)
-            .attr('x', this.svgWidth / 2)
-            .attr('y', d => this.svgHeight * d.yCoef)
-            .text(d => d.text);
+    const groups = this.svg.selectAll('g')
+                           .data(this.counterData)
+                           .enter().append('g');
+   groups.append('circle')
+         .attr('class', d => d.peaType + '-pea')
+         .classed('counter-pea', true)
+         .attr('r', 40)
+         .attr('cx', this.svgWidth / 2)
+         .attr('cy', d => this.svgHeight * d.yCoef);
+    groups.append('text')
+          .attr('class', d => 'counter-text-' + d.peaType)
+          .classed('counter-text', true)
+          .attr('x', this.svgWidth / 2)
+          .attr('y', d => this.svgHeight * d.yCoef + 5)
+          .text(d => d.text);
   }
 
   updateCounters(pea) {
