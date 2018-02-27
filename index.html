@@ -6,17 +6,32 @@
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/d3/4.10.2/d3.js'></script>
     <!--script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script-->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="beanieStyle.css">
   </head>
   <body>
-    <div class='pea-controlls'>
-      <button id="add-a-pea">Ще горошок!</button>
-      <button id="add-all-peas">Додати все!</button>
-      <button id="reload-peas">&#8635;</button>
-    </div>
-    <div class="pea-svg-container">
-      <div id="pea-probability" class="svg-container pea-prob-plot"></div>
-      <div id="pea-prob-counters" class="svg-container"></div>
-    </div>
-    <script type="text/jscript" src="main.js"></script>
+    <article>
+      <section id="choose-beanies-section">
+        <p>
+          Зелених <input id="green-beanie-input" class="beanie-input"
+                   type="number" name="green" value="20" max="20" min="0"></input>,
+          Жовтих <input id="yellow-beanie-input" class="beanie-input"
+                  type="number" name="yellow" value="0" max="20" min="0"></input>
+        </p>
+        <div id="choose-beanies" class="svg-container"></div>
+      </section>
+      <section id="pea-probability-section">
+        <div class='pea-controlls'>
+          <button id="add-a-pea">Ще горошок!</button>
+          <button id="add-all-peas">Додати все!</button>
+          <button id="reload-peas">&#8635;</button>
+        </div>
+        <div class="pea-svg-container">
+          <div id="pea-probability" class="pea-svg-container pea-prob-plot"></div>
+          <div id="pea-prob-counters" class="pea-svg-container"></div>
+        </div>
+      </section>
+    </article>
+    <script type="text/javascript" src="chooseBeanies.js"></script>
+    <script type="text/javascript" src="peaProb.js"></script>
   </body>
 </html>

@@ -6,11 +6,16 @@
   white-space:nowrap
 }
 
-.svg-container {
+.pea-svg-container {
   display: inline-block;
   white-space:normal;
   outline: 1px solid #017A57;
   height: 255px;
+}
+
+article {
+  width: 750px;
+  margin: 0 auto;
 }
 
 .pea-prob-plot {
