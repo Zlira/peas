@@ -1,41 +1,58 @@
 'use strict';
 
 // todo make a class for data
-function randomPea(classOneProb) {
-  if (!classOneProb) {
-    classOneProb = .5;
-  };
-  const classes = ['green', 'yellow'];
-  return Math.random() < classOneProb? classes[0] : classes[1];
-}
-
-function randomTrial(peaNum, classOneProb) {
-  const peas = [];
-  for (let i = 0; i < peaNum; i++) {
-    peas.push(randomPea(classOneProb));
-  }
-  return peas;
-}
-
-function randomTrials(trialNum, peasPerTrial, classOneProb) {
-  const trials = [];
-  for (let i=0; i < trialNum; i++) {
-    trials.push(randomTrial(peasPerTrial, classOneProb));
-  }
-  return trials;
-}
-
-function toLongForm(trials) {
-  const longFormTrials = [];
-  for (let trialIndex=0; trialIndex < trials.length; trialIndex++) {
-    for (let peaIndex=0; peaIndex < trials[trialIndex].length; peaIndex++) {
-      longFormTrials.push({
-        'trialIndex': trialIndex, 'peaIndex': peaIndex,
-        'color': trials[trialIndex][peaIndex]
-      });
+class peaTrialsData {
+  constructor (trialsNum, peasPerTrial, classOneProb) {
+    if (!classOneProb) {
+      classOneProb = .5;
     };
-  };
-  return longFormTrials;
+    this.trialsNum = trialsNum;
+    this.peasPerTrial = peasPerTrial;
+    this.classOneProb = classOneProb;
+    this.classOne = 'green';
+    this.classTwo = 'yellow';
+    this.classes = [this.classOne, this.classTwo];
+    this.data = undefined;
+    this._longFormData = undefined;
+  }
+
+  _randomPea() {
+    return Math.random() < this.classOneProb? this.classOne : this.classTwo;
+  }
+
+  _randomTrial() {
+    const peas = [];
+    for (let i = 0; i < this.peasPerTrial; i++) {
+      peas.push(this._randomPea(this.classOneProb));
+    }
+    return peas;
+  }
+
+  _randomTrials() {
+    const trials = [];
+    for (let i=0; i < this.trialsNum; i++) {
+      trials.push(this._randomTrial());
+    }
+    return trials;
+  }
+
+  get longFormData() {
+    this._longFormData = [];
+    for (let trialIndex=0; trialIndex < this.data.length; trialIndex++) {
+      for (let peaIndex=0; peaIndex < this.data[trialIndex].length; peaIndex++) {
+        this._longFormData.push({
+          'trialIndex': trialIndex, 'peaIndex': peaIndex,
+          'color': this.data[trialIndex][peaIndex]
+        });
+      };
+    };
+    return this._longFormData;
+  }
+
+  reloadData() {
+    this.data = this._randomTrials();
+    this._longFormData = undefined;
+  }
 }
 
 class PeaTrialVis {
@@ -66,14 +83,16 @@ class PeaTrialVis {
   }
 
   reloadData(trialsNum, peasPerTrial, classOneProb) {
-    this.trialsNum = trialsNum;
-    this.peasPerTrial = peasPerTrial;
-    this.classOneProb = classOneProb;
-    this.data = toLongForm(randomTrials(trialsNum, peasPerTrial, classOneProb));
+    this.peaTrials = new peaTrialsData(trialsNum, peasPerTrial, classOneProb);
+    this.peaTrials.reloadData();
+    this.data = this.peaTrials.longFormData;
   }
 
-  reload() {
-    this.reloadData(this.trialsNum, this.peasPerTrial, this.classOneProb);
+  reload(trialsNum, peasPerTrial, classOneProb) {
+    if (!trialsNum) {trialsNum = this.peaTrials.trialsNum};
+    if (!peasPerTrial) {peasPerTrial = this.peaTrials.peasPerTrial};
+    if (!classOneProb) {classOneProb = this.peaTrials.classOneProb};
+    this.reloadData(trialsNum, peasPerTrial, classOneProb);
     this.container.selectAll('circle').remove();
     this.drawPeas();
   }
@@ -95,7 +114,7 @@ class PeaTrialVis {
                   .transition()
                   .duration(1000)
                   .delay((d, i) => i * 10)
-                  .attr('cx', (d, i) => {let ind = i % this.peasPerTrial;
+                  .attr('cx', (d, i) => {let ind = i % this.peaTrials.peasPerTrial;
                                          return (2 * ind + 1) * this.peaRadius + ind * this.horizontalPad});
   }
 
