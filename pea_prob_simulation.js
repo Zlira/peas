@@ -49,6 +49,10 @@ class peaTrialsData {
     return this._longFormData;
   }
 
+  trialClassOneProportion(trialInd) {
+      return d3.mean(this.data[trialInd].map(e => e === this.classOne));
+  }
+
   reloadData() {
     this.data = this._randomTrials();
     this._longFormData = undefined;
@@ -113,16 +117,25 @@ class PeaTrialVis {
                   .sort((d1, d2) => d1.trialIndex == d2.trialIndex? d1.color > d2.color: false)
                   .transition()
                   .duration(1000)
-                  .delay((d, i) => i * 10)
+                  .delay((d, i) => i % this.peaTrials.peasPerTrial * 20)
                   .attr('cx', (d, i) => {let ind = i % this.peaTrials.peasPerTrial;
                                          return (2 * ind + 1) * this.peaRadius + ind * this.horizontalPad});
   }
 
   sortTrialsByProportion() {
-
+    this.container.selectAll('circle')
+                  .sort((d1, d2) => d1.trialIndex == d2.trialIndex?
+                                    false :
+                                    this.peaTrials.trialClassOneProportion(d1.trialIndex) >
+                                    this.peaTrials.trialClassOneProportion(d2.trialIndex))
+                  .transition()
+                  .duration(1000)
+                  .delay((d, i) => Math.floor(i / this.peaTrials.peasPerTrial) * 20)
+                  .attr('cy', (d, i) => {let ind = Math.floor(i / this.peaTrials.peasPerTrial);
+                                         return (2 * ind + 1) * this.peaRadius + ind * this.verticalPad;});
   }
 }
 
 let vis = new PeaTrialVis(950, 450);
-vis.reloadData(10, 6, .5);
+vis.reloadData(10, 16, .5);
 vis.drawPeas();
