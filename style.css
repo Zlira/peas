@@ -1,3 +1,7 @@
+.text {
+  font-family: PTSans;
+}
+
 .pea-controlls {
   margin: 10px 0px;
 }
@@ -47,3 +51,5 @@ svg .counter-text {
   font-size: 30px;
   fill: #017A57;
 }
+
+/** simulation styles **/

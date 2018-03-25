@@ -235,7 +235,7 @@ class PeasCounter {
           .attr('class', d => 'counter-text-' + d.peaType)
           .classed('counter-text', true)
           .attr('x', this.svgWidth / 2)
-          .attr('y', d => this.svgHeight * d.yCoef + 3)
+          .attr('y', d => this.svgHeight * d.yCoef + 5)
           .text(d => d.text + '%');
   }
 
@@ -253,7 +253,7 @@ class PeasCounter {
 const peas = getRandomPeaSeq(60);
 const peaSeqSteps = expandPeaSeq(peas);
 const peasPic = new RandomPeas(955, 220, '#017A57', 'white');
-const countersPic = new PeasCounter(130, 220);
+const countersPic = new PeasCounter(110, 220);
 const dispatcher = d3.dispatch('new-pea')
 // global steps not good
 let steps = 0;
