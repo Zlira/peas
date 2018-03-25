@@ -97,6 +97,10 @@ class RandomPeas {
     this.peaGroup = this.container.append('g').attr('id', 'pea-group');
   }
 
+  clear() {
+    this.peaGroup.selectAll('circle').remove();
+  }
+
   addBackground() {
     if (this.backgroundColor) {
       this.svg.append('rect')
@@ -163,6 +167,7 @@ class RandomPeas {
       xCoef: getXCoeficient(stepNum - 1, d.xCoef, -1),
     }));
     const toDraw = peaStepSeq.slice(0, stepBounds.start).concat(shiftedCurrStep);
+    scrollToPea(newPea);
     this.drawPeas(toDraw);
 
     // transition existing peas from the previous step to the next
@@ -200,7 +205,8 @@ class RandomPeas {
     );
     peaCircles.on('end', el => {
       if (el.isNew) {
-        dispatcher.call('new-pea', this, el)
+        scrollToPea(el);
+        dispatcher.call('new-pea', this, el);
       }
     });
   }
@@ -221,7 +227,7 @@ class PeasCounter {
     this.counterData = [
       {'peaType': 'yellow', 'text': 0, 'yCoef': 3/4},
       {'peaType': 'green', 'text': 0, 'yCoef': 1/4},
-    ]
+    ];
     const groups = this.svg.selectAll('g')
                            .data(this.counterData)
                            .enter().append('g');
@@ -239,6 +245,16 @@ class PeasCounter {
           .text(d => d.text + '%');
   }
 
+  clear() {
+    this.counterData = [
+      {'peaType': 'yellow', 'text': 0, 'yCoef': 3/4},
+      {'peaType': 'green', 'text': 0, 'yCoef': 1/4},
+    ];
+    this.svg.selectAll('text.counter-text')
+            .data(this.counterData)
+            .transition().text('0%');
+  }
+
   updateCounters(pea) {
     if (!pea) {return};
     for (let c of this.counterData) {
@@ -250,26 +266,61 @@ class PeasCounter {
   }
 }
 
-const peas = getRandomPeaSeq(60);
-const peaSeqSteps = expandPeaSeq(peas);
+function scrollToPea(pea) {
+  const peaContainerNode = d3.select("#pea-probability").node();
+  let scrollDest = Math.round(pea.xCoef * 220 - 600); // todo remove hardcode
+  if (scrollDest < 0) {scrollDest = -1};
+  let increment;
+  if (scrollDest === peaContainerNode.scrollLeft) {
+     increment = 0;
+  } else if (scrollDest > peaContainerNode.scrollLeft) {
+     increment = 5;
+  } else {
+     increment = -5;
+  }
+  let i = increment;
+  let stop;
+  const intervalId = setInterval(() => {
+    peaContainerNode.scrollLeft += i;
+    i += increment;
+    // todo remove 355
+    stop = (peaContainerNode.scrollLeft >= 355) ||
+           (increment > 0? peaContainerNode.scrollLeft >= scrollDest :
+                           peaContainerNode.scrollLeft - scrollDest <= 1);
+    if (stop) clearInterval(intervalId);
+  }, 40);
+}
+
+
+function reload() {
+  peas = getRandomPeaSeq(60);
+  peaSeqSteps = expandPeaSeq(peas);
+  d3.select("#pea-probability").node().scrollLeft = 0;
+  // global steps not good
+  step = 0;
+  peasPic.clear();
+  countersPic.clear();
+}
+
+
+let peas, peaSeqSteps, step;
 const peasPic = new RandomPeas(955, 220, '#017A57', 'white');
-const countersPic = new PeasCounter(110, 220);
-const dispatcher = d3.dispatch('new-pea')
-// global steps not good
-let steps = 0;
+const countersPic = new PeasCounter(130, 220);
+const dispatcher = d3.dispatch('new-pea');
+reload();
+
 d3.select('#add-a-pea').on('click', function() {
-  steps += 1;
-  peasPic.drawStepsTill(peaSeqSteps, steps);
+  step += 1;
+  peasPic.drawStepsTill(peaSeqSteps, step);
 });
 d3.select('#add-all-peas').on('click', function () {
-  steps = peaSeqSteps.length;
+  step = peaSeqSteps.length;
   peasPic.drawRemainingSteps(peaSeqSteps);
 });
+d3.select('#reload-peas').on('click', () => reload());
 dispatcher.on('new-pea', (pea) => {
   if (pea) {
     countersPic.updateCounters(pea);
-    d3.select("#pea-probability")
-      .node().scrollLeft = pea.xCoef * 220 - 600; // todo remove hardcode
   }
 });
 // peasPic.drawMiddleLine();
