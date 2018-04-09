@@ -22,6 +22,10 @@ article {
   margin: 0 auto;
 }
 
+section {
+  margin: 20px 0;
+}
+
 .pea-prob-plot {
   width: 600px;
   overflow-x: scroll;

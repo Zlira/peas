@@ -1,6 +1,5 @@
 'use strict';
 
-// todo make a class for data
 class peaTrialsData {
   constructor (trialsNum, peasPerTrial, classOneProb) {
     if (!classOneProb) {
@@ -61,10 +60,11 @@ class peaTrialsData {
 
 class PeaTrialVis {
   constructor (svgWidth, svgHeight) {
+    // todo declare all of the expected attributes here
     this.svgWidth = svgWidth;
     this.svgHeight = svgHeight;
     // todo fine tune this parameters
-    this.peaRadius = 10;
+    this.peaRadius = 16;
     this.verticalPad = 10;
     this.horizontalPad = 3;
     this.initSvg();
@@ -97,45 +97,78 @@ class PeaTrialVis {
     if (!peasPerTrial) {peasPerTrial = this.peaTrials.peasPerTrial};
     if (!classOneProb) {classOneProb = this.peaTrials.classOneProb};
     this.reloadData(trialsNum, peasPerTrial, classOneProb);
-    this.container.selectAll('circle').remove();
+    this.container.selectAll('image').remove();
     this.drawPeas();
   }
 
   drawPeas() {
-    this.container.selectAll('circle')
+    this.container.selectAll('image')
                   .data(this.data)
                   .enter()
-                  .append('circle')
-                    .attr('class', d => d.color + '-pea')
-                    .attr('cx', d => (2*d.peaIndex + 1) * this.peaRadius + d.peaIndex * this.horizontalPad)
-                    .attr('cy', d => (2*d.trialIndex + 1) * this.peaRadius + d.trialIndex * this.verticalPad)
-                    .attr('r', this.peaRadius);
+                  .append('svg:image')
+                    .attr('x', d => (2*d.peaIndex + 1) * this.peaRadius + d.peaIndex * this.horizontalPad)
+                    .attr('y', d => (2*d.trialIndex + 1) * this.peaRadius + d.trialIndex * this.verticalPad)
+                    .attr('height', this.peaRadius * 2)
+                    .attr('width', this.peaRadius * 2)
+                    .attr('shape-rendering', 'crispEdges')
+                    .attr('xlink:href', d => d.color == this.peaTrials.classOne?
+                          './imgs/calm_green_pea.png' : './imgs/calm_yellow_pea.png')
   }
 
   sortPeasByColor() {
-    this.container.selectAll('circle')
+    this.container.selectAll('image')
                   .sort((d1, d2) => d1.trialIndex == d2.trialIndex? d1.color > d2.color: false)
-                  .transition()
+                  .transition('color-sort')
                   .duration(1000)
                   .delay((d, i) => i % this.peaTrials.peasPerTrial * 20)
-                  .attr('cx', (d, i) => {let ind = i % this.peaTrials.peasPerTrial;
-                                         return (2 * ind + 1) * this.peaRadius + ind * this.horizontalPad});
+                  .attr('x', (d, i) => {let ind = i % this.peaTrials.peasPerTrial;
+                                        return (2 * ind + 1) * this.peaRadius + ind * this.horizontalPad});
   }
 
   sortTrialsByProportion() {
-    this.container.selectAll('circle')
+    const transition = this.container.selectAll('image')
                   .sort((d1, d2) => d1.trialIndex == d2.trialIndex?
                                     false :
                                     this.peaTrials.trialClassOneProportion(d1.trialIndex) >
                                     this.peaTrials.trialClassOneProportion(d2.trialIndex))
-                  .transition()
+                  .transition('prop-sort')
                   .duration(1000)
                   .delay((d, i) => Math.floor(i / this.peaTrials.peasPerTrial) * 20)
-                  .attr('cy', (d, i) => {let ind = Math.floor(i / this.peaTrials.peasPerTrial);
+                  .attr('y', (d, i) => {let ind = Math.floor(i / this.peaTrials.peasPerTrial);
                                          return (2 * ind + 1) * this.peaRadius + ind * this.verticalPad;});
+    return transition;
+  }
+
+  // todo at the moment olny works after 'sortPeasByColor' was applied
+  showUnmatched(transition) {
+    let classOneInTrial, unmatched, counter = 0,
+        expectedClassOne = this.peaTrials.classOneProb * this.peaTrials.peasPerTrial;
+    transition.transition()
+              .delay((d, i) => 30 * (i % this.peaTrials.peasPerTrial))
+              .attr('xlink:href',
+                    (d, i) => {
+                      classOneInTrial = (this.peaTrials.trialClassOneProportion(d.trialIndex) *
+                                         this.peaTrials.peasPerTrial);
+                      unmatched = classOneInTrial - expectedClassOne;
+                      if (d.color == this.peaTrials.classOne) {
+                        return i % this.peaTrials.peasPerTrial + 1 > expectedClassOne?
+                               './imgs/sad_green_pea.png' : './imgs/glad_green_pea.png';
+                      } else {
+                        return i % this.peaTrials.peasPerTrial - expectedClassOne < 0?
+                               './imgs/sad_yellow_pea.png' : './imgs/glad_yellow_pea.png';
+                      };
+                    })
   }
 }
 
 let vis = new PeaTrialVis(950, 450);
 vis.reloadData(10, 16, .5);
 vis.drawPeas();
+
+// todo use dispatcher
+d3.select('#reload-pea-simulation').on('click', e => vis.reload());
+d3.select('#sort-by-color').on('click', e => vis.sortPeasByColor());
+d3.select('#sort-by-prop').on('click', e => {
+  const trans = vis.sortTrialsByProportion();
+  vis.showUnmatched(trans);
+});
