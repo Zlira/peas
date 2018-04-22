@@ -8,36 +8,59 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="beanieStyle.css">
   </head>
-  <body>
-    <article>
-      <section id="choose-beanies-section">
-        <p>
-          Зелених <input id="green-beanie-input" class="beanie-input"
-                   type="number" name="green" value="20" max="20" min="0"></input>,
-          Жовтих <input id="yellow-beanie-input" class="beanie-input"
-                  type="number" name="yellow" value="0" max="20" min="0"></input>
-        </p>
-        <div id="choose-beanies" class="svg-container"></div>
-      </section>
-      <section id="pea-probability-section">
-        <div class='pea-controlls'>
-          <button id="add-a-pea">Ще горошок!</button>
-          <button id="add-all-peas">Додати все!</button>
-          <button id="reload-peas">&#8635;</button>
-        </div>
-        <div class="pea-svg-container">
-          <div id="pea-probability" class="pea-svg-container pea-prob-plot"></div>
-          <div id="pea-prob-counters" class="pea-svg-container"></div>
-        </div>
-      </section>
+  <body style="border: thin solid gray">
+    <article> <!-- style="border: thin solid gray" -->
       <section id="pea-prob-simulation">
+        <h2>Імовірність</h2>
+        <p>
+          Ти вже дещо знаєш про імовірність. Тобі, може, доводилося по дорозі додому думати щось таке
+          як «Яка <em>імовірність</em>, що завтра не будуть перевіряти домашнє з математики?» чи
+          «Яка <em>імовірність</em>, що батьки затримаються на роботі?». Можливо, ти навіть
+          прикидала чи прикидав, наскільки ризиковано присвятити вечір чомусь захопливішому, ніж приклади,
+          і сподіватися що і вдома цього не засічуть, і двійки в школі не дістанеш. Найчастіше, коли ми
+          думаємо про непевні речі, то оцінюємо їх дуже приблизно, як-от «навряд чи», «хто-зна»,
+          «цілком можливо» чи «майже напевне». Але питання ймовірностей настільки поширені, а точні відповіді на них
+          наскікльи важливі, що люди вже давним давно винайшли цілу галузь математики — «теорію йомвірностей» —
+          яка дозволяє перевести такі міркування у конкретні цифри.
+        </p>
+        <p>
+          Ти, може, думаєш, чому я оце про математику торочу, коли обіцяла про генетику? А от для
+          генетики теорія ймовірностей також необіхдна. Тому, для початку, ми пересвідчимося, що ти знаєш
+          і розумієш про імовірності все, що нам знадобиться далі.
+        </p>
+        <p>
+          Уяви собі, що ти живеш у спільноті гарненьких горошків двох кольорів — жовтих і зелених. Тобі не відомо,
+          скільки всього тих чи тих, але знаєш, що їх порівну. Твоя робота у спільноті — робити для всіх берети.
+          Так — берети, шапочки такі.
+          Горошини люблять свої берети, у беретах вони <img src="imgs/glad_green_pea.png"> щасливі,
+          а без беретів — <img src="imgs/sad_green_pea.png"> сумні. Важливо, що горошки носять
+          тільки «свій» колір, не можна давати зелених уборів жовтим і жовтих зеленим.
+        </p>
+        <p>
+          Ось ти готуєшся до приходу перших охочих на твої берети. Скажімо, ми знаємо що до тебе прийде рівно
+          одни горошок (не хвилюся, потім їх буде більше, власне, скільки захочеш). Який берет ти будеш шити —
+          зелений чи жовтий?
+        </p>
+        <section id="single-pea-prob" class="single-pea-prob simulation">
+          <div class="tot-results">
+            <p><span id="tot-results-guessed">0</span> успіхів</p>
+            <p><span id="tot-results-not-guessed">0</span> невдач</p>
+          </div>
+          <div>
+          <input type="radio" id="single-pea-prob-green" name="beret" value="green" checked>
+          <label for="single-pea-prob-green"><img src="imgs/green_beret.png"/>Зелений</label>
+          <input type="radio" id="single-pea-prob-yellow" name="beret" value="yellow">
+          <label for="single-pea-prob-yellow"><img src="imgs/yellow_beret.png"/>Жовтий</label>
+          <button id="single-pea-ready">Прийняти горошину</button>
+          </div>
+          <p id="single-pea-result"></p>
+        </section>
         <button id="reload-pea-simulation">&#8635;</button>
         <button id="sort-by-color">Сортувати за кольором</button>
         <button id="sort-by-prop">Сортувати за зеленістю</button>
       </section>
     </article>
-    <script type="text/javascript" src="chooseBeanies.js"></script>
-    <script type="text/javascript" src="peaProb.js"></script>
     <script type="text/jscript" src="pea_prob_simulation.js"></script>
+    <script type="text/jscript" src="single_pea_prob.js"></script>
   </body>
 </html>

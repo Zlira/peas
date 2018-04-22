@@ -1,5 +1,10 @@
-.text {
-  font-family: PTSans;
+body {
+  font-family: "PT Sans";
+}
+
+p {
+  font-size: 18px;
+  line-height: 1.5;
 }
 
 .pea-controlls {
@@ -18,12 +23,22 @@
 }
 
 article {
-  width: 750px;
+  width: 800px;
   margin: 0 auto;
 }
 
 section {
   margin: 20px 0;
+}
+
+img {
+  image-rendering: pixelated;  /* doesn't work in firefox */
+  vertical-align: middle;
+}
+
+section.simulation {
+  background-color: #f2f2f2;
+  padding: 10px;
 }
 
 .pea-prob-plot {
@@ -62,3 +77,10 @@ svg .counter-text {
 }
 
 /** simulation styles **/
+section.single-pea-prob {
+  height: 120px;
+}
+
+.single-pea-prob .tot-results {
+  float: right;
+}
